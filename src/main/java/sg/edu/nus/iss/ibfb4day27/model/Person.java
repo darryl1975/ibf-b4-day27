@@ -26,4 +26,12 @@ public class Person {
 
     private List<String> hobbies;
 
+    public Person(String name, long age, String gender, List<String> hobbies) {
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+        this.hobbies = hobbies;
+    }
+
+    
 }
