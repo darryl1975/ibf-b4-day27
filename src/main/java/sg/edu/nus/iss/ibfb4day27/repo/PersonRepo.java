@@ -16,7 +16,7 @@ import sg.edu.nus.iss.ibfb4day27.model.Person;
 @Repository
 public class PersonRepo {
 
-    private final MongoTemplate mongoTemplate;
+    private MongoTemplate mongoTemplate;
 
     public PersonRepo(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
