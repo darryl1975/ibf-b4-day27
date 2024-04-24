@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.BucketOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
@@ -198,6 +199,23 @@ public class IbfB4Day27Application implements CommandLineRunner {
 
 		List<Document> documentSlide31 = resultSlide31.getMappedResults();
 
-		System.out.println("Day 28 slide 31: " + documentSlide31.toString());
+		// System.out.println("Day 28 slide 31: " + documentSlide31.toString());
+
+		// Day 28 slide 39
+		MatchOperation matchOperationSlide39 = Aggregation.match(Criteria.where("Rated").is("PG"));
+
+		LookupOperation lookupOperationSlide39 = Aggregation.lookup("commentary", "movie_id", "_id", "Reviews");
+
+		ProjectionOperation projectOperationSlide39 = Aggregation.project("_id", "Title", "Year", "Rated", "Genre", "Reviews");
+
+		SortOperation sortOperationSlide39 = Aggregation.sort(Sort.by(Direction.ASC, "Title"));
+
+		Aggregation pipelineSlide39 = Aggregation.newAggregation(matchOperationSlide39, lookupOperationSlide39,projectOperationSlide39, sortOperationSlide39);
+
+		AggregationResults<Document> aggregationResultSlide39 = mt.aggregate(pipelineSlide39, "movies", Document.class);
+
+		List<Document> documentResultSlide39 = aggregationResultSlide39.getMappedResults();
+
+		System.out.println("Day 28 slide 31: " + documentResultSlide39.toString());
 	}
 }
