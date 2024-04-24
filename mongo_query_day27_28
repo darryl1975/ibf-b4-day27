@@ -1,0 +1,441 @@
+// switch  to local database
+use local;
+
+use test;
+
+
+db.persons.find({});
+
+
+db.persons.dropIndexes();
+
+db.persons.createIndex({
+    name: "text"
+});
+
+db.persons.createIndex({
+    "$**": "text"
+});
+
+db.persons.find({
+   $text: {
+       $search: "Emily",
+       $caseSensitive: false
+   } 
+});
+
+db.persons.updateOne(
+{ gender: "F" },
+{ $set: { name: "Emily", age: 20 } } 
+);
+
+db.persons.updateOne(
+{ gender: "F" },
+{ $set: { name: "Emily" }, 
+  $inc: { age: 1 }} 
+);
+
+// slide 12
+db.persons.update(
+{ _id: ObjectId("65a915ff49d6872622906330")},
+{ $set: {name: "Emily Junior", age: 12, gender: "M", hobbies: ["Swimming"]}},
+{ upsert: true}
+)
+
+
+db.movies.update(
+{ Rated: "R"},
+{ $set: { Metascore: 60}}
+);
+
+db.games.find({});
+
+db.movies.find({});
+
+db.movies.dropIndexes();
+
+// day 27 - slide 16
+db.persons.find(
+{ age: { $gte: 30 }}
+);
+
+db.persons.find(
+{ age: { $gte: 30 }},
+{ _id: 1, name: 1, age: 1, gender: 1}
+);
+
+// day 27 - slide 17
+db.movies.dropIndexes();
+
+db.movies.createIndex({
+    Title: "text"
+});
+
+db.movies.createIndex({
+    "$**": "text"
+})
+
+// day 27 - slide 18
+db.movies.find({
+   $text: {
+       $search: "avatar",
+       $caseSensitive: false
+   } 
+});
+
+
+// day 27 - slide 21
+db.persons.find(
+{
+    $text: { $search: "eMiLy ng"}    
+}, 
+{
+    score: {
+        $meta: "textScore"
+    }
+}
+);
+
+
+db.inventory.find({});
+
+// day 27 - slide 24
+db.inventory.insert({
+    item: "game console",
+    instock: [
+        {warehouse: "Ang Mo Kio", qty: 25 },
+        {warehouse: "Toa Payoh", qty: 50}
+    ]
+});
+
+
+// day 27 - slide 26
+db.inventory.find(
+    { "instock.warehouse" : "Ang Mo Kio"}
+);
+
+// day 27 - slide 28
+db.inventory.find(
+{
+    $and: [
+        { "instock.warehouse": "Ang Mo Kio"},
+        { "instock.qty" : { $gt: 50 }}
+    ]
+}
+);
+
+db.inventory.find(
+{
+    instock: {
+        $elemMatch: {
+            warehouse: "Ang Mo Kio",
+            qty: { $gte: 20}
+        }
+    }
+}
+)
+
+// day 27 - slide 29
+
+db.inventory.update(
+    { "instock.warehouse": "Ang Mo Kio"},
+    {
+        $inc: {
+            "instock.$[].qty": 100
+        }
+    }
+);
+
+// day 27 - slide 30
+
+db.inventory.update(
+{ _id: ObjectId("65a8c9795805bd8556d3483a")},
+{ $push: {
+    instock: {warehouse: "Ubi", qty: 100}
+}}
+)
+
+db.inventory.update(
+{ _id: ObjectId("65a8c9795805bd8556d3483a")},
+{
+    $pop: { instock: 1 }
+}
+)
+
+// delete the collection
+db.inventory.drop();
+
+
+db.inventory.insertMany(
+[{ 
+    "item": "journal", 
+    "instock": [
+        { "warehouse": "Ang Mo Kio", "qty": 5 },
+        { "warehouse": "Clementi", "qty": -10 } ]
+},
+{ 
+    "item": "notebook", 
+    "instock": [
+        { "warehouse": "Clementi", "qty": 5 } ]
+},
+{ 
+    "item": "paper", 
+    "instock": [
+        { "warehouse": "Ang Mo Kio", "qty": -5 },
+        { "warehouse": "Bedok", "qty": -20 } ]
+},
+{ 
+    "item": "planner", 
+    "instock": [
+        { "warehouse": "Ang Mo Kio", "qty": 40 },
+        { "warehouse": "Bedok", "qty": -20 } ]
+},
+{ 
+    "item": "postcard", 
+    "instock": [
+        { "warehouse": "Bedok", "qty": 15 },
+        { "warehouse": "Clementi", "qty": 35 } ]
+}]
+)
+
+
+// day 27 - slide 31 
+
+db.inventory.updateMany(
+    { "instock.warehouse": "Ang Mo Kio"},
+    {
+        $set: {
+            "instock.$[elem].qty": 0
+        }
+    }, 
+    {
+        arrayFilters: [
+            { "elem.qty": { $lte: -1}}
+        ]
+    }
+);
+
+
+// day 27 - slide 17
+
+db.movies.dropIndexes();
+
+db.movies.find();
+
+// create text search indexes for all columns
+db.movies.createIndex(
+    {"$**": "text"}
+);
+
+// day 27 - slide 18, 21
+db.movies.find({
+    $text: {
+        $search: "avatar",
+        $caseSensitive: false
+    }
+},
+    { score: { $meta: "textScore"}}
+);
+
+
+// day 27 - slide 26
+db.movies.find({
+    "Genre": "Sci-Fi"
+});
+
+db.movies.find({
+    "Genre": { $in: ["Sci-Fi", "Horror", "Adventure"] }
+});
+
+
+db.movies.find({
+    "Genre": { $all: ["Sci-Fi", "Adventure"]}
+});
+
+
+db.games.find();
+
+
+ // day 28 - slide 7
+db.movies.aggregate([
+    { $match : { Rated: "PG" }}
+]);
+
+// day 28 - slide 10
+db.movies.aggregate([
+    { $match : { Rated: "PG" }},
+    { $project: { _id: 0, Title: 1, Year: 1, Rated: 1, Released: 1 }}
+]);
+
+// day 28 - slide 13
+db.movies.aggregate([
+    {
+        $group: {
+            _id: "$Rated",
+            count: { $sum: 1},
+            titles: { $push: "$Title"}    
+        }
+    },
+    {
+        $sort: { count: -1, _id: -1}
+    }
+]);
+
+// day 28 - slide 17
+db.movies.aggregate([
+{
+    $project: { _id: 1, Title: 1, summary: "$Plot", winning: "$Awards"}
+},
+{
+    $sort: { Title: 1, summary: 1}
+}
+]);
+
+
+
+// day 28 - slide 20
+db.movies.aggregate([
+{
+    $project: { 
+        _id: 1, 
+        Title: {
+            $concat : [ "$Title", "(", "$Rated", ")" ]
+        }, 
+        summary: "$Plot", 
+        winning: "$Awards"}
+},
+{
+    $sort: { Title: 1}
+}
+]);
+
+
+// day 28 -slide 25
+db.inventory.aggregate([{
+    $unwind: "$instock"
+}]);
+
+
+db.movies.aggregate([{
+    $unwind: "$Genre"
+}]);
+
+// day 28 - slide 26
+db.movies.aggregate([
+{
+    $unwind: "$Genre"
+},
+{
+    $group: {
+        _id: "$Genre",
+        titles: { $push: "$Title"},
+        titles_count: { $sum : 1}
+    }
+},
+{
+    $sort: { titles_count: -1 }
+}, 
+//{
+//    $out: { db: "test", coll: "categories" }
+//}
+]);
+
+
+// day 28 - slide 29
+db.movies.aggregate([
+{
+    $unwind: "$Genre"
+},
+{
+    $bucket: {
+        groupBy: "$Genre",
+        boundaries: ["Adventure", "Biography", "Comedy", "Drama", "Fantasy", "Horror", "Sci-Fi"],
+        default: "ZZZZ",
+        output: {
+            "count": { $sum: 1},
+            "titles" : { $push : { $concat : [ "$Title", " (", "$Rated", ")"] } }
+        }
+    }
+}
+]);
+
+
+db.movies.aggregate([
+{
+    $bucket: {
+        groupBy: "$Rated",
+        boundaries: ["N/A", "PG", "R", "TV"],
+        default: "TV"
+    }
+}
+]);
+
+db.movies.aggregate([
+{
+    $unwind: "$Genre"
+},
+{
+    $bucket: {
+        groupBy: "$Genre",
+        boundaries: ["Adventure", "Biography", "Comedy", "Drama", "Fantasy", "Horror", "Sci-Fi"],
+        default: "ZZZZ",
+        output: {
+            "count": { $sum: 1},
+            "titles" : { $push : { $concat : [ "$Title", " (", "$Rated", ")"] } }
+        }
+    }
+},
+{
+    $unwind: "$titles"
+},
+{
+    $sort: { titles: -1 }
+}
+]);
+
+// day 28 - slide 38
+db.movies.find({});
+
+db.commentary.find();
+
+db.movies.aggregate([
+    {
+        $match: { Rated: "PG" }
+    },
+    {
+        $lookup: {
+            from: "commentary",
+            foreignField: "movie_id",
+            localField: "_id",
+            as: "Reviews"
+        }
+    },
+    {
+        $project: { _id: 1, Title: 1, Year: 1, Rated: 1, Genre: 1, Reviews: 1}
+    },
+    {
+        $unwind: "$Reviews"
+    },
+    {
+        $sort: {Title: 1}
+    }
+]);
+
+db.games.find();
+
+db.comments.find();
+
+db.games.find({});
+
+
+
+
+db.movies.find({});
+
+
+db.movies.aggregate([{
+    $set: {
+        Year: { $toInt: "$Year" },
+        Response: { $toBool: "$Response"}
+    }
+}]);
